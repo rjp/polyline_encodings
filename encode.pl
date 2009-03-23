@@ -7,7 +7,7 @@ sub x {
 }
 
 sub x5 {
-    if ($DEBUG == 0) { return };
+    if ($main::DEBUG == 0) { return };
     my $bits = shift;
     my $info = shift;
     my $s = unpack("B*", pack("N", $bits)), " $info\n";
@@ -16,7 +16,7 @@ sub x5 {
 }
 
 sub z {
-    if ($DEBUG == 0) { return };
+    if ($main::DEBUG == 0) { return };
     my $r = shift;
     print join(',', @$r),"\n";
 }
@@ -25,7 +25,7 @@ sub encode_number {
     my $point = shift;
     my $encoded = '';
 
-    $DEBUG = 0;
+    if ($point == 0) { return chr(63); }
 
     # multiply by 1e5 and truncate
     my $scaled = int(1e5 * abs($point));
@@ -98,10 +98,12 @@ sub encode_points {
     my $lat = 0;
     my $long = 0;
     my $polyencoded = '';
+    my $scale = 10000000;
 
     foreach my $i (@{$polyline}) {
-        my $e_lat = (int(100000*$i->[0]) - int(100000*$lat))/100000;
-        my $e_lng = (int(100000*$i->[1]) - int(100000*$long))/100000;
+        my $e_lat = (int($scale*$i->[0]) - int($scale*$lat))/$scale;
+        my $e_lng = (int($scale*$i->[1]) - int($scale*$long))/$scale;
+        print "($i->[0], $i->[1]) - ($lat, $long) = ($e_lat, $e_lng)\n";
         $polyencoded .= encode_point($e_lat, $e_lng);
         $lat = $i->[0];
         $long = $i->[1];
