@@ -1,4 +1,7 @@
 use Test::More qw(no_plan);
+use Benchmark;
+
+$main::DEBUG=0;
 
 require_ok 'encode.pl';
 
@@ -36,12 +39,20 @@ is($p1, '~`tqG~`tqG_kbvD_wemJ_kbvD~jbvDw|@|p~G', "encoded polyline");
 
 my @p = ();
 while (<DATA>) {
+    chomp;
     my ($la, $lo) = split /, /, $_;
     push @p, [$la, $lo];
 }
 $main::DEBUG=1;
 $p1 = encode_points(\@p);
 is($p1, 'miywFz`pbMiFz`Ch}Ad_@fv@bB~X{rBm[w_CitAeQii@`^|GbdC`mAxYzP{rBmoA}KbThmArMk_A', 'spiral points');
+
+print "spiral has ", scalar @p, " points\n";
+timethese(-10, {
+    spiral => sub { encode_points(\@p) },
+    number => sub { encode_number(-179.9832104) },
+    point  => sub { encode_point(38.5, -120.2) },
+});
 
 __DATA__
 40.76711, -73.97918

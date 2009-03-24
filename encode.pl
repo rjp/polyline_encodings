@@ -1,13 +1,19 @@
 use Data::Dumper;
+use Math::BigFloat lib => 'FastCalc';
+
+Math::BigFloat->accuracy(8);
+
+$main::DEBUG=0;
 
 sub x {
+    return; # if ($main::DEBUG == 0) { return };
     my $bits = shift;
     my $info = shift;
     print unpack("B*", pack("N", $bits)), " | $bits | $info\n";
 }
 
 sub x5 {
-    if ($main::DEBUG == 0) { return };
+    return; # if ($main::DEBUG == 0) { return };
     my $bits = shift;
     my $info = shift;
     my $s = unpack("B*", pack("N", $bits)), " $info\n";
@@ -16,7 +22,7 @@ sub x5 {
 }
 
 sub z {
-    if ($main::DEBUG == 0) { return };
+    return; # if ($main::DEBUG == 0) { return };
     my $r = shift;
     print join(',', @$r),"\n";
 }
@@ -24,6 +30,7 @@ sub z {
 sub encode_number {
     my $point = shift;
     my $encoded = '';
+
 
     if ($point == 0) { return chr(63); }
 
@@ -79,7 +86,7 @@ sub encode_number {
 
     $encoded = join('', @chrs);
 
-    print "en: $point => $encoded\n" if $DEBUG;
+#    print "en: $point => $encoded\n" if $DEBUG;
     return $encoded;
 }
 
@@ -95,18 +102,22 @@ sub encode_point {
 
 sub encode_points {
     my $polyline = shift;
-    my $lat = 0;
-    my $long = 0;
+    my $p_lat = new Math::BigFloat 0;
+    my $p_lng = new Math::BigFloat 0;
     my $polyencoded = '';
     my $scale = 10000000;
 
     foreach my $i (@{$polyline}) {
-        my $e_lat = (int($scale*$i->[0]) - int($scale*$lat))/$scale;
-        my $e_lng = (int($scale*$i->[1]) - int($scale*$long))/$scale;
-        print "($i->[0], $i->[1]) - ($lat, $long) = ($e_lat, $e_lng)\n";
-        $polyencoded .= encode_point($e_lat, $e_lng);
-        $lat = $i->[0];
-        $long = $i->[1];
+        my $s_lat = new Math::BigFloat $i->[0];
+        my $s_lng = new Math::BigFloat $i->[1];
+
+        my $d_lat = $s_lat - $p_lat;
+        my $d_lng = $s_lng - $p_lng;
+
+#        print "($i->[0], $i->[1])-($usp_lat,$usp_lng) = ($p_lat, $p_lng) - ($s_lat, $s_lng) = ($d_lat, $d_lng)\n";
+        $polyencoded .= encode_point($d_lat, $d_lng);
+        $p_lat = $s_lat;
+        $p_lng = $s_lng;
     }
     return $polyencoded;
 }
