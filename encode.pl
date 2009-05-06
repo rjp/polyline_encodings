@@ -1,12 +1,14 @@
 use Data::Dumper;
 
 sub x {
+    return;
     my $bits = shift;
     my $info = shift;
     print unpack("B*", pack("N", $bits)), " | $bits | $info\n";
 }
 
 sub x5 {
+    return;
     if ($main::DEBUG == 0) { return };
     my $bits = shift;
     my $info = shift;
@@ -16,6 +18,7 @@ sub x5 {
 }
 
 sub z {
+    return;
     if ($main::DEBUG == 0) { return };
     my $r = shift;
     print join(',', @$r),"\n";
@@ -79,7 +82,7 @@ sub encode_number {
 
     $encoded = join('', @chrs);
 
-    print "en: $point => $encoded\n" if $DEBUG;
+#    print "en: $point => $encoded\n" if $DEBUG;
     return $encoded;
 }
 
@@ -103,7 +106,7 @@ sub encode_points {
     foreach my $i (@{$polyline}) {
         my $e_lat = (int($scale*$i->[0]) - int($scale*$lat))/$scale;
         my $e_lng = (int($scale*$i->[1]) - int($scale*$long))/$scale;
-        print "($i->[0], $i->[1]) - ($lat, $long) = ($e_lat, $e_lng)\n";
+#        print "($i->[0], $i->[1]) - ($lat, $long) = ($e_lat, $e_lng)\n";
         $polyencoded .= encode_point($e_lat, $e_lng);
         $lat = $i->[0];
         $long = $i->[1];
