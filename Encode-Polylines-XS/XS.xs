@@ -4,6 +4,9 @@
 
 #include "ppport.h"
 
+#define IS_ARRAYREF(x) ((SvTYPE(SvRV(x)) == SVt_PVAV))
+#define IS_DOUBLE(x) (SvNOK(x))
+#define ARRAY_DOUBLE(x,y) (SvNV(*av_fetch(x, y, 0)))
 
 MODULE = Encode::Polylines::XS		PACKAGE = Encode::Polylines::XS		
 
