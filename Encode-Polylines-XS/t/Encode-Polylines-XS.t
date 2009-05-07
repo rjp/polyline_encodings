@@ -17,5 +17,6 @@ ok(1); # If we made it this far, we're ok.
 
 Encode::Polylines::XS::hello();
 # av_len actually returns $#, not the length of the array
-ok(Encode::Polylines::XS::encode([1,2,3,4]), "x3");
-ok(Encode::Polylines::XS::encode([4]), "x0");
+ok(Encode::Polylines::XS::encode([38.5, -120.2]), "_p~iF~ps|U");
+ok(Encode::Polylines::XS::encode([38.5, -120.2, 40.7, -120.95, 43.252, -126.453]),
+    '_p~iF~ps|U_ulLnnqC_mqNvxq`@');
