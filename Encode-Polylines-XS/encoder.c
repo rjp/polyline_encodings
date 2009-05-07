@@ -61,6 +61,40 @@ encode_number(double input, char *buffer)
     buffer[chunk_i+1] = '\0';
 }
 
+void
+encode_add_point(double lat, double lng, char *buffer, double *old_lat, double *old_lng)
+{
+    char b[10];
+
+    double dlat = lat - *old_lat;
+    double dlng = lng - *old_lng;
+
+	encode_number(dlat, b); strcat(buffer, b);
+	encode_number(dlng, b); strcat(buffer, b);
+
+    *old_lat = lat;
+    *old_lng = lng;
+}
+
+void
+encode_points(double *list, int count, char **output)
+{
+    int i;
+    double old_lat = 0.0, old_lng = 0.0;
+    char *out;
+
+    out = (char *)malloc(6*count*sizeof(char)+5);
+    *output = out;
+
+    /* make sure we have an empty string because we're using strcat */
+    out[0] = '\0';
+    
+    for(i=0; i<count; i+=2) { /* lat, long, lat, long, ... */
+	    double plat=list[i], plng=list[i+1];
+        encode_add_point(plat, plng, out, &old_lat, &old_lng);
+	}
+}
+
 #ifdef TEST
 int
 main (void)
