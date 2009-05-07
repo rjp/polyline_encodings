@@ -152,6 +152,14 @@ main (void)
         }
         puts("");
     }
+
+    {
+        char *got;
+        double a[] = { 40.76711,-73.97918,40.768280000000004,-73.99996 };
+        encode_points(a, 4, &got);
+        fprintf(stderr, "g=[%s]\n", got);
+    }
+
 }
 #endif
 
