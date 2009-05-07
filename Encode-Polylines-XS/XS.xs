@@ -10,6 +10,8 @@
 
 MODULE = Encode::Polylines::XS		PACKAGE = Encode::Polylines::XS		
 
+#include "encoder.c"
+
 void
 hello()
     CODE:
@@ -19,12 +21,19 @@ char *
 encode(points)
     SV * points
 INIT:
+    int n;
     char *output;
-    int numpoints = av_len((AV *)SvRV(points));
+    /* do this later so we can take arrays or arrayrefs */
+    AV *point_array = (AV *)SvRV(points) ;
+    int numpoints = av_len(point_array);
+    double old_lat = 0.0, old_lng = 0.0;
 
-    if ((!SvROK(points)
-        || (SvTYPE(SvRV(points)) != SVt_PVAV)
-        || numpoints < 0))
+    if ((
+          ! SvROK(points)
+       || ! IS_ARRAYREF(points) /* have we an array ref? */
+       || numpoints < 0
+       || numpoints % 2 == 0 /* numpoints is (length-1) so %2 == 1 for even */
+       ))
     {
         XSRETURN_UNDEF;
     }
@@ -39,9 +48,14 @@ CODE:
         XSRETURN_UNDEF;
     }
 
-    sprintf(output, "x%d", numpoints);
+    output[0] = '\0'; /* we use strcat so ensure a blank string */
+
+    for (n=0; n <= numpoints; n+=2) {
+        double plat = ARRAY_DOUBLE(point_array, n);
+        double plng = ARRAY_DOUBLE(point_array, n+1);
+        encode_add_point(plat, plng, output, &old_lat, &old_lng);
+    }
+
     RETVAL = output;
 OUTPUT:
     RETVAL
-
-
