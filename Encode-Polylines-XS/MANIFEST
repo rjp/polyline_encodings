@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+ppport.h
+README
+XS.xs
+t/Encode-Polylines-XS.t
+lib/Encode/Polylines/XS.pm
