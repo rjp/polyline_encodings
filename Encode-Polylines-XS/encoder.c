@@ -10,18 +10,32 @@ debug(double input, long scaled, char *p)
 
 /* buffer needs to be at least 8 characters long */
 void
-encode_number(double input, char *buffer)
+encode_number(double input, char *buffer, long *output)
 {
     int i;
     int chunk_i = -1;
     double scale_factor = 1e5;
     double abs_input = (input < 0 ? -input : input);
     double d_scaled = scale_factor * abs_input;
-    unsigned long scaled = (long) d_scaled;
+    double f_scaled = floor(d_scaled);
+    unsigned long scaled;
+    int is_minus = 0;
+
+    long s_scaled = (long)(floor(scale_factor*input));
+
+    scaled = abs(s_scaled - *output);
+
+    if (s_scaled < *output) {
+        is_minus = 1;
+    }
+
+    *output = s_scaled;
+
+    // printf("Y %15lf => f=%15lf - o=%15ld => s=%15lu => u=%15ld / o=%15ld\n", input, f_scaled, *output, scaled, s_scaled, *output);
 
     debug(input, scaled, "scaled");
 
-    if (input < 0) {
+    if (is_minus) {
         int bitpoint = 1;
         scaled = scaled ^ 0xFFFFFFFF;
         while (scaled & bitpoint) {
@@ -35,7 +49,7 @@ encode_number(double input, char *buffer)
     scaled = (scaled << 1) & 0xFFFFFFFF;
     debug(input, scaled, "shift left");
     
-    if (input < 0) {
+    if (is_minus) {
         scaled = scaled ^ 0xFFFFFFFF;
         debug(input, scaled, "2nd inversion");
     }
@@ -62,25 +76,19 @@ encode_number(double input, char *buffer)
 }
 
 void
-encode_add_point(double lat, double lng, char *buffer, double *old_lat, double *old_lng)
+encode_add_point(double lat, double lng, char *buffer, long *old_lat, long *old_lng)
 {
     char b[10];
 
-    double dlat = lat - *old_lat;
-    double dlng = lng - *old_lng;
-
-	encode_number(dlat, b); strcat(buffer, b);
-	encode_number(dlng, b); strcat(buffer, b);
-
-    *old_lat = lat;
-    *old_lng = lng;
+	encode_number(lat, b, old_lat); strcat(buffer, b);
+	encode_number(lng, b, old_lng); strcat(buffer, b);
 }
 
 void
 encode_points(double *list, int count, char **output)
 {
     int i;
-    double old_lat = 0.0, old_lng = 0.0;
+    long old_lat = 0, old_lng = 0;
     char *out;
 
     out = (char *)malloc(6*count*sizeof(char)+5);

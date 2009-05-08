@@ -26,7 +26,7 @@ INIT:
     /* do this later so we can take arrays or arrayrefs */
     AV *point_array = (AV *)SvRV(points) ;
     int numpoints = av_len(point_array);
-    double old_lat = 0.0, old_lng = 0.0;
+    long old_lat = 0, old_lng = 0;
 
     if ((
           ! SvROK(points)
