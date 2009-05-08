@@ -18,13 +18,18 @@ encode_number(mpf_t input, char *buffer)
     mpf_t abs_input, scale_factor, d_scaled;
     unsigned long scaled;
 
+    mpf_init(d_scaled);
+    mpf_init(abs_input);
+    mpf_init_set_ui(scale_factor, 1e5); /* too many inits, use a static? */
+
     mpf_abs(abs_input, input);
-
-    mpf_init_set_ui(scale_factor, 1e5);
-
     mpf_mul(d_scaled, abs_input, scale_factor);
 
     scaled = mpf_get_ui(d_scaled);
+
+    mpf_clear(abs_input);
+    mpf_clear(scale_factor);
+    mpf_clear(d_scaled);
 
     debug(input, scaled, "scaled");
 
@@ -105,7 +110,12 @@ encode_points(double *list, int count, char **output)
         plat = mpf_init_set_d(list[i]);
         plng = mpf_init_set_d(list[i+1]);
         encode_add_point(plat, plng, out, &old_lat, &old_lng);
+        mpf_clear(plat);
+        mpf_clear(plng);
 	}
+
+    mpf_clear(old_lat);
+    mpf_clear(old_lng);
 }
 
 #ifdef TEST
