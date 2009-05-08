@@ -9,7 +9,6 @@ sub x {
 
 sub x5 {
     return;
-    if ($main::DEBUG == 0) { return };
     my $bits = shift;
     my $info = shift;
     my $s = unpack("B*", pack("N", $bits)), " $info\n";

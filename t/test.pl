@@ -7,8 +7,12 @@ require_ok 'encode.pl';
 
 my $p1;
 
+$p1 = encode_number(-73.97918);
+is($p1, '`~oia@', 'encoding -73.97918');
+
 $p1 = encode_number(-179.9832104);
 is($p1, '`~oia@', 'encoding -179.9832104');
+#
 # #
 $p1 = encode_number(38.5);
 is($p1, '_p~iF', 'encoding 38.5');
