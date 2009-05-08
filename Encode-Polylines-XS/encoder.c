@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <gmp.h>
 
 void
 debug(double input, long scaled, char *p)
@@ -10,14 +11,20 @@ debug(double input, long scaled, char *p)
 
 /* buffer needs to be at least 8 characters long */
 void
-encode_number(double input, char *buffer)
+encode_number(mpf_t input, char *buffer)
 {
     int i;
     int chunk_i = -1;
-    double scale_factor = 1e5;
-    double abs_input = (input < 0 ? -input : input);
-    double d_scaled = scale_factor * abs_input;
-    unsigned long scaled = (long) d_scaled;
+    mpf_t abs_input, scale_factor, d_scaled;
+    unsigned long scaled;
+
+    mpf_abs(abs_input, input);
+
+    mpf_init_set_ui(scale_factor, 1e5);
+
+    mpf_mul(d_scaled, abs_input, scale_factor);
+
+    scaled = mpf_get_ui(d_scaled);
 
     debug(input, scaled, "scaled");
 
@@ -62,25 +69,25 @@ encode_number(double input, char *buffer)
 }
 
 void
-encode_add_point(double lat, double lng, char *buffer, double *old_lat, double *old_lng)
+encode_add_point(mpf_t lat, mpf_t lng, char *buffer, mpf_t old_lat, mpf_t old_lng)
 {
     char b[10];
 
-    double dlat = lat - *old_lat;
-    double dlng = lng - *old_lng;
+    mpf_t dlat = lat - *old_lat;
+    mpf_t dlng = lng - *old_lng;
 
 	encode_number(dlat, b); strcat(buffer, b);
 	encode_number(dlng, b); strcat(buffer, b);
 
-    *old_lat = lat;
-    *old_lng = lng;
+    mpf_set(old_lat, lat);
+    mpf_set(old_lng, lng);
 }
 
 void
 encode_points(double *list, int count, char **output)
 {
     int i;
-    double old_lat = 0.0, old_lng = 0.0;
+    mpf_t old_lat, old_lng;
     char *out;
 
     out = (char *)malloc(6*count*sizeof(char)+5);
@@ -88,9 +95,15 @@ encode_points(double *list, int count, char **output)
 
     /* make sure we have an empty string because we're using strcat */
     out[0] = '\0';
+
+    mpf_init_set_d(old_lat, 0.0);
+    mpf_init_set_d(old_lng, 0.0);
     
     for(i=0; i<count; i+=2) { /* lat, long, lat, long, ... */
-	    double plat=list[i], plng=list[i+1];
+        mpf_t plat, plng;
+
+        plat = mpf_init_set_d(list[i]);
+        plng = mpf_init_set_d(list[i+1]);
         encode_add_point(plat, plng, out, &old_lat, &old_lng);
 	}
 }
