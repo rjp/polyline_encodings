@@ -2,6 +2,7 @@
 # `make test'. After `make install' it should work as `perl Encode-Polylines-XS.t'
 
 use Benchmark;
+use Data::Dumper;
 
 #########################
 
@@ -10,30 +11,37 @@ use Benchmark;
 use Test;
 BEGIN { plan tests => 3 };
 use Encode::Polylines::XS;
-ok(1); # If we made it this far, we're ok.
 
 #########################
 
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
-Encode::Polylines::XS::hello();
 # av_len actually returns $#, not the length of the array
-ok(Encode::Polylines::XS::encode([38.5, -120.2]), "_p~iF~ps|U");
 ok(Encode::Polylines::XS::encode([38.5, -120.2, 40.7, -120.95, 43.252, -126.453]),
     '_p~iF~ps|U_ulLnnqC_mqNvxq`@');
+ok(Encode::Polylines::XS::encode([38.5, -120.2]), "_p~iF~ps|U");
 
 my @p = ();
 while (<DATA>) {
     chomp;
     my ($la, $lo) = split /, /, $_;
-    push @p, [$la, $lo];
+    push @p, $la, $lo;
 }
 
 print "spiral has ", scalar @p, " points\n";
 timethese(-10, {
     spiral => sub { Encode::Polylines::XS::encode(\@p) },
 });
+
+@p = ();
+open F, "testfile2";
+while (<F>) {
+    chomp;
+    my ($la, $lo) = split /,/, $_;
+    push @p, $la, $lo;
+}
+ok(Encode::Polylines::XS::encode(\@p), '{~yeF~h}gVsfCgomBx{hAt{ZxjH}j_AsudAka@dqn@qxqBb{P}kb@ioz@}kb@|dIkhC}dItxJfxE~sHdhNufQynGhrVjl{@irVg}iL__uz@ysf@ccdf@_{dI}|j_AjhtKqhnc@tf|Aq}`l@mcjK{brl@m`hO_txJg`gCdypN');
 
 __DATA__
 40.76711, -73.97918
