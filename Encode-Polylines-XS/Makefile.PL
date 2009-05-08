@@ -9,7 +9,7 @@ WriteMakefile(
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Encode/Polylines/XS.pm', # retrieve abstract from module
        AUTHOR         => 'U-FABIONUDIBRANCH\rjp <rjp@x-ray.at>') : ()),
-    LIBS              => [''], # e.g., '-lm'
+    LIBS              => ['-lgmp'], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I.', # e.g., '-I. -I/usr/include/other'
 	# Un-comment this if you add C files to link with later:

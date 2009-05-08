@@ -10,6 +10,7 @@
 
 MODULE = Encode::Polylines::XS		PACKAGE = Encode::Polylines::XS		
 
+#include <gmp.h>
 #include "encoder.c"
 
 void
@@ -26,7 +27,7 @@ INIT:
     /* do this later so we can take arrays or arrayrefs */
     AV *point_array = (AV *)SvRV(points) ;
     int numpoints = av_len(point_array);
-    double old_lat = 0.0, old_lng = 0.0;
+    mpf_t old_lat, old_lng;
 
     if ((
           ! SvROK(points)
@@ -50,11 +51,20 @@ CODE:
 
     output[0] = '\0'; /* we use strcat so ensure a blank string */
 
+    mpf_init_set_d(old_lat, 0.0);
+    mpf_init_set_d(old_lng, 0.0);
+
     for (n=0; n <= numpoints; n+=2) {
-        double plat = ARRAY_DOUBLE(point_array, n);
-        double plng = ARRAY_DOUBLE(point_array, n+1);
-        encode_add_point(plat, plng, output, &old_lat, &old_lng);
+        mpf_t plat, plng;
+        mpf_init_set_d(plat, ARRAY_DOUBLE(point_array, n));
+        mpf_init_set_d(plng, ARRAY_DOUBLE(point_array, n+1));
+        encode_add_point(plat, plng, output, old_lat, old_lng);
+        mpf_clear(plat);
+        mpf_clear(plng);
     }
+
+    mpf_clear(old_lat);
+    mpf_clear(old_lng);
 
     RETVAL = output;
 OUTPUT:
